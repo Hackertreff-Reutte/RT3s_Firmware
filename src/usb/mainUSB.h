@@ -11,6 +11,10 @@
 #include <libopencm3/usb/dwc/otg_fs.h> // for OTG_FS_GCCFG
 
 
+#include "cdcAcmUSB.h"
+#include "descriptors.h"
+
+
 int setupUSB();
 
 #endif
