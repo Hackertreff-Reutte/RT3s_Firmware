@@ -10,9 +10,9 @@ const struct usb_device_descriptor device_descriptor = {
 	.bLength = USB_DT_DEVICE_SIZE,
 	.bDescriptorType = USB_DT_DEVICE, //type = device descriptor
 	.bcdUSB = 0x0200, //USB version 2
-	.bDeviceClass = USB_CLASS_CDC,  //Communications and CDC Control
+	.bDeviceClass = 0,  //0 = USB_CLASS_MISCELLANEOUS
 	.bDeviceSubClass = 0, //device defined at interface level
-	.bDeviceProtocol = 0,
+	.bDeviceProtocol = 1, //use device assoc descriptor
 	.bMaxPacketSize0 = 64, //packet size 8 16 32 64
 	.idVendor = 0x0483, //STMircoelectronics
 	.idProduct = 0x5740, //STMircoelectronics Virtual COM Port
@@ -24,17 +24,22 @@ const struct usb_device_descriptor device_descriptor = {
 };
 
 
+//TODO REMOVE / CHANGE THIS
+extern uint8_t streaming_iface_cur_altsetting;
+
+
 const struct usb_interface ifaces[] = {{
 	.cur_altsetting = 0,
 	.num_altsetting = 1,
-	.iface_assoc = NULL,
+	.iface_assoc = &cdc_iface_assoc,
 	.altsetting = comm_iface,
 }, {
 	.cur_altsetting = 0,
 	.num_altsetting = 1,
 	.iface_assoc = NULL,
 	.altsetting = data_iface,
-} };
+}
+};
 
 const struct usb_config_descriptor config = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,

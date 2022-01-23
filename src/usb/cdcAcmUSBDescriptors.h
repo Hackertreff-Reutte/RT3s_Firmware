@@ -5,6 +5,18 @@
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/cdc.h>
 
+
+static const struct usb_iface_assoc_descriptor cdc_iface_assoc = {  //  Interface Association for sub-interfaces.
+	.bLength = USB_DT_INTERFACE_ASSOCIATION_SIZE,
+	.bDescriptorType = USB_DT_INTERFACE_ASSOCIATION,
+	.bFirstInterface = 0,  //  First associated interface is comm_iface, interface ID is 2
+	.bInterfaceCount = 2,  //  We have 2 associated interfaces: comm_iface and data_iface
+	.bFunctionClass = USB_CLASS_CDC,            //  This is a USB CDC (Comms Device Class) interface
+	.bFunctionSubClass = USB_CDC_SUBCLASS_ACM,  //  That implements ACM (Abstract Control Model)
+	.bFunctionProtocol = USB_CDC_PROTOCOL_AT,   //  Using the AT protocol
+	.iFunction = 3  //  Name of Serial Port (index of string descriptor)
+};
+
 static const struct usb_endpoint_descriptor data_endp[] = {{
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
@@ -34,11 +46,11 @@ static const struct usb_interface_descriptor data_iface[] = {{
 	.bInterfaceClass = USB_CLASS_DATA,
 	.bInterfaceSubClass = 0,
 	.bInterfaceProtocol = 0,
-	.iInterface = 0,
+	.iInterface = 1,
 
 	.endpoint = data_endp,
 
-    .extra = NULL,
+    .extra = NULL, //TODO mybe change to 0 also see others
     .extralen = 0
 } };
 

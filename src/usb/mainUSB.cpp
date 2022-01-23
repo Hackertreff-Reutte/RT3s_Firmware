@@ -1,6 +1,5 @@
 #include "mainUSB.h"
 
-
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[128];
 
@@ -38,6 +37,7 @@ int setupUSB() {
     
     //setup cdc acm (usb UART)
     cdcacm_setup(usbd_dev);
+
 
     while (1) {
 		usbd_poll(usbd_dev);
