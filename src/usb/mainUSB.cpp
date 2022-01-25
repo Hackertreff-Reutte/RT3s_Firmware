@@ -7,6 +7,7 @@ const char *usb_strings[] = {
 	"UnHold Technologies",
 	"CDC-ACM Demo",
 	"DEMO",
+    "Audio Alex"
 };
 
 int setupUSB() {

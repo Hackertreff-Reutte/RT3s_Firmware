@@ -9,7 +9,7 @@
 static const struct usb_iface_assoc_descriptor cdc_iface_assoc = {  //  Interface Association for sub-interfaces.
 	.bLength = USB_DT_INTERFACE_ASSOCIATION_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE_ASSOCIATION,
-	.bFirstInterface = 0,  //  First associated interface is comm_iface, interface ID is 2
+	.bFirstInterface = 1,  //  First associated interface is comm_iface, interface ID is 1
 	.bInterfaceCount = 2,  //  We have 2 associated interfaces: comm_iface and data_iface
 	.bFunctionClass = USB_CLASS_CDC,            //  This is a USB CDC (Comms Device Class) interface
 	.bFunctionSubClass = USB_CDC_SUBCLASS_ACM,  //  That implements ACM (Abstract Control Model)
@@ -40,7 +40,7 @@ static const struct usb_endpoint_descriptor data_endp[] = {{
 static const struct usb_interface_descriptor data_iface[] = {{
 	.bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
-	.bInterfaceNumber = 1,
+	.bInterfaceNumber = 2,
 	.bAlternateSetting = 0,
 	.bNumEndpoints = 2, //number of endpoints (RX and TX)
 	.bInterfaceClass = USB_CLASS_DATA,
@@ -96,7 +96,7 @@ static const struct {
 		.bFunctionLength = sizeof(struct usb_cdc_union_descriptor),
 		.bDescriptorType = CS_INTERFACE,
 		.bDescriptorSubtype = USB_CDC_TYPE_UNION,
-		.bControlInterface = 0,
+		.bControlInterface = 1,
 		.bSubordinateInterface0 = 1,
 	 }
 };
@@ -104,7 +104,7 @@ static const struct {
 static const struct usb_interface_descriptor comm_iface[] = {{
 	.bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
-	.bInterfaceNumber = 0,
+	.bInterfaceNumber = 1,
 	.bAlternateSetting = 0,
 	.bNumEndpoints = 1,
 	.bInterfaceClass = USB_CLASS_CDC,
