@@ -8,7 +8,6 @@
 
 
 //FUNCTION DECLARATION
-void cdcacm_setup(usbd_device *usbd_dev);
-
+void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue);
 
 #endif

@@ -6,6 +6,8 @@
 
 #define SAMPLE_RATE 8000
 
+
+
 static const struct {
     struct usb_audio_header_descriptor_head header_head;
     struct usb_audio_header_descriptor_body header_body;
@@ -69,7 +71,7 @@ static const struct usb_interface_descriptor audio_control_iface[] = {{
     .extra = &audio_control_functional_descriptors,
     .extralen = sizeof(audio_control_functional_descriptors)
 } };
-/*
+
 
 static const struct usb_audio_stream_audio_endpoint_descriptor audio_streaming_cs_ep_desc[] = { {
     .bLength = sizeof(struct usb_audio_stream_audio_endpoint_descriptor),
@@ -85,7 +87,7 @@ static const struct usb_endpoint_descriptor isochronous_ep[] = { {
     .bDescriptorType = USB_DT_ENDPOINT,
     .bEndpointAddress = 0x82,
     .bmAttributes = USB_ENDPOINT_ATTR_ASYNC | USB_ENDPOINT_ATTR_ISOCHRONOUS,
-    .wMaxPacketSize = 64, //maybe change to 64 //was 256
+    .wMaxPacketSize = 64, //maybe 64 was 256
     .bInterval = 0x01, // 1 millisecond 
 
     // not using usb_audio_stream_endpoint_descriptor??
@@ -94,7 +96,7 @@ static const struct usb_endpoint_descriptor isochronous_ep[] = { {
     .extra = &audio_streaming_cs_ep_desc[0],
     .extralen = sizeof(audio_streaming_cs_ep_desc[0])
 } };
-*/
+
 
 #define AS_GENERAL 0x01
 #define PCM_FORMAT 0x0001
@@ -131,7 +133,7 @@ static const struct {
 };
 
 static const struct usb_interface_descriptor audio_streaming_iface[] = {{
-	.bLength = USB_DT_INTERFACE_SIZE,
+    .bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
 	.bInterfaceNumber = 4,
 	.bAlternateSetting = 0,
@@ -151,13 +153,13 @@ static const struct usb_interface_descriptor audio_streaming_iface[] = {{
 	.bDescriptorType = USB_DT_INTERFACE,
 	.bInterfaceNumber = 4,
 	.bAlternateSetting = 1,
-	.bNumEndpoints = 0,
+	.bNumEndpoints = 1,
 	.bInterfaceClass = USB_CLASS_AUDIO,
 	.bInterfaceSubClass = USB_AUDIO_SUBCLASS_AUDIOSTREAMING,
 	.bInterfaceProtocol = 0,
 	.iInterface = 0,
 
-	.endpoint = 0,
+	.endpoint = isochronous_ep,
 
     .extra = &audio_streaming_functional_descriptors,
     .extralen = sizeof(audio_streaming_functional_descriptors)

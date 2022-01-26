@@ -79,10 +79,3 @@ void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
 				USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
 				cdcacm_control_request);
 }
-
-
-void cdcacm_setup(usbd_device *usbd_dev){
-
-	//register callback
-	usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
-}
