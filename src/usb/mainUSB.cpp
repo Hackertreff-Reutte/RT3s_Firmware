@@ -1,7 +1,7 @@
 #include "mainUSB.h"
 
 /* Buffer to be used for control requests. */
-uint8_t usbd_control_buffer[128];
+uint8_t usbd_control_buffer[256];
 
 const char *usb_strings[] = {
 	"UnHold Technologies",
@@ -9,6 +9,9 @@ const char *usb_strings[] = {
 	"DEMO",
     "Audio Alex"
 };
+
+
+
 
 int setupUSB() {
 
@@ -32,7 +35,7 @@ int setupUSB() {
     gpio_set_af(GPIOA, GPIO_AF10, GPIO10 | GPIO11 | GPIO12);
 
     //setup the USB
-    usbd_dev = usbd_init(&otgfs_usb_driver, &device_descriptor, &config, usb_strings, 3, usbd_control_buffer, sizeof(usbd_control_buffer));
+    usbd_dev = usbd_init(&otgfs_usb_driver, &device_descriptor, &config, usb_strings, 4, usbd_control_buffer, sizeof(usbd_control_buffer));
     OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS | OTG_GCCFG_PWRDWN; //fix = https://github.com/libopencm3/libopencm3/issues/1309
 
     
