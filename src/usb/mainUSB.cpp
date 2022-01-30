@@ -42,16 +42,12 @@ static enum usbd_request_return_codes control_request(usbd_device *usbd_dev,
 
 #define WAVEFORM_SAMPLES 16
 
-/* Samples interleaved L,R,L,R ==> actually samples/2 'time' samples */
-int16_t waveform_data[WAVEFORM_SAMPLES] = {1};
-
-int16_t waveform_data2[WAVEFORM_SAMPLES] = {2};
-
+int16_t waveform_data[WAVEFORM_SAMPLES] = {0};
 void init_waveform_data()
 {
     /* Just transmit a boring sawtooth waveform on both channels */
     for (int i = 0; i < WAVEFORM_SAMPLES; i++) {
-        waveform_data[i] = 0xFFFF * i;
+        waveform_data[i] = 4102 * i;
     }
 }
 
@@ -77,18 +73,16 @@ void usbaudio_iso_stream_callback(usbd_device *usbd_dev, uint8_t ep)
 {
     (void)ep;
     //toggle_isochronous_frame(ep);
-    usbd_ep_write_packet(usbd_dev, 0x81, waveform_data, WAVEFORM_SAMPLES);
-    gpio_set(GPIOE, GPIO0);
-    
+    usbd_ep_write_packet(usbd_dev, 0x81, waveform_data, WAVEFORM_SAMPLES * 2);
 }
 
 
 void set_config(usbd_device *usbd_dev, uint16_t wValue){
 
-    usbd_ep_setup(usbd_dev, 0x81, USB_ENDPOINT_ATTR_ISOCHRONOUS, WAVEFORM_SAMPLES, usbaudio_iso_stream_callback);
+    usbd_ep_setup(usbd_dev, 0x81, USB_ENDPOINT_ATTR_ISOCHRONOUS, WAVEFORM_SAMPLES * 2, usbaudio_iso_stream_callback);
 
 
-    //usbd_ep_write_packet(usbd_dev, 0x82, waveform_data, WAVEFORM_SAMPLES);
+    usbd_ep_write_packet(usbd_dev, 0x81, waveform_data, WAVEFORM_SAMPLES * 2);
 
     //set config cdc acm (usb uart)
     if(wValue == 0){
@@ -98,15 +92,11 @@ void set_config(usbd_device *usbd_dev, uint16_t wValue){
 
     //LOG EVERYTHING
     
-
-
     usbd_register_control_callback(
 				usbd_dev,
 				USB_REQ_TYPE_OUT | USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_INTERFACE,
 				0xFF,
 				control_request);
-
-    
                 
 }
 
