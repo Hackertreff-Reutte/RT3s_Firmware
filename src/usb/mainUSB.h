@@ -13,6 +13,7 @@
 
 #include "cdcAcmUSB.h"
 #include "descriptors.h"
+#include "usbAddresses.h"
 
 
 

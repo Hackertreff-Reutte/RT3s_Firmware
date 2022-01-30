@@ -58,7 +58,7 @@ const struct usb_config_descriptor config = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
 	.bDescriptorType = USB_DT_CONFIGURATION,
 	.wTotalLength = 0, //is calculated automatically
-	.bNumInterfaces = 4, //number of interfaces
+	.bNumInterfaces = sizeof(ifaces) / sizeof(usb_interface), //number of interfaces
 	.bConfigurationValue = 1, //configuration value
 	.iConfiguration = 0, //index of string descriptor describing this descriptor (0 = none)
 	.bmAttributes = 0x80, //power managment = (default)

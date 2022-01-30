@@ -8,7 +8,7 @@ const char *usb_strings[] = {
 	"UnHold Technologies",
 	"CDC-ACM Demo",
 	"DEMO",
-    "Audio Alex"
+    "Audio MIC Alex"
 };
 
 
@@ -75,18 +75,19 @@ void usbaudio_iso_stream_callback(usbd_device *usbd_dev, uint8_t ep)
     (void)ep;
     toggle_isochronous_frame(ep);
 
+    //TODO add check here to see if its the right endpoint
     //2 times the waveform_smaples because 16 * 16bit = 16 * 2 = 32 byte
-    usbd_ep_write_packet(usbd_dev, 0x81, waveform_data, WAVEFORM_SAMPLES * 2);
+    usbd_ep_write_packet(usbd_dev, USB_AUDIO_MIC_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);
 }
 
 
 void set_config(usbd_device *usbd_dev, uint16_t wValue){
 
-    usbd_ep_setup(usbd_dev, 0x81, USB_ENDPOINT_ATTR_ISOCHRONOUS, WAVEFORM_SAMPLES * 2, usbaudio_iso_stream_callback);
+    usbd_ep_setup(usbd_dev, USB_AUDIO_MIC_STREAMING_EP_ADDR, USB_ENDPOINT_ATTR_ISOCHRONOUS, WAVEFORM_SAMPLES * 2, usbaudio_iso_stream_callback);
 
 
     //maybe place this somewhere else?
-    usbd_ep_write_packet(usbd_dev, 0x81, waveform_data, WAVEFORM_SAMPLES * 2);
+    usbd_ep_write_packet(usbd_dev, USB_AUDIO_MIC_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);
 
     //set config cdc acm (usb uart)
     if(wValue == 0){
@@ -133,7 +134,7 @@ int setupUSB() {
     gpio_set_af(GPIOA, GPIO_AF10, GPIO10 | GPIO11 | GPIO12);
 
     //setup the USB
-    usbd_dev_main = usbd_init(&otgfs_usb_driver, &device_descriptor, &config, usb_strings, 4, usbd_control_buffer, sizeof(usbd_control_buffer));
+    usbd_dev_main = usbd_init(&otgfs_usb_driver, &device_descriptor, &config, usb_strings, sizeof(usb_strings)/sizeof(char*), usbd_control_buffer, sizeof(usbd_control_buffer));
     
     OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS | OTG_GCCFG_PWRDWN; //fix = https://github.com/libopencm3/libopencm3/issues/1309
     

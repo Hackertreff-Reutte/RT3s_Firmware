@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/cdc.h>
-
+#include "usbAddresses.h"
 
 
 //FUNCTION DECLARATION

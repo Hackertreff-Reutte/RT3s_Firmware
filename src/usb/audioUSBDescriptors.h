@@ -3,21 +3,24 @@
 
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/audio.h>
+#include "usbAddresses.h"
 
 #define SAMPLE_RATE 8000
 
 static const struct usb_iface_assoc_descriptor audio_iface_assoc = {  //  Interface Association for sub-interfaces.
 	.bLength = USB_DT_INTERFACE_ASSOCIATION_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE_ASSOCIATION,
-	.bFirstInterface = 3,  //  First associated interface is audio_control_iface, interface ID is 3
+	.bFirstInterface = USB_AUDIO_MIC_CONTROL_INTERFACE_ADDR,  //  First associated interface is audio_control_iface, interface ID is 3
 	.bInterfaceCount = 2,  //  We have 2 associated interfaces: audio_control_iface and audio_streaming_iface
 	.bFunctionClass = USB_CLASS_AUDIO, //  This is a USB AUDIO (Audio Device Class) interface
 	.bFunctionSubClass = 0x02,  //  not sure what this is (maybe audio conntroll)
 	.bFunctionProtocol = 1,   //  not sure why
-	.iFunction = 3  //  Name of Audio interface (index of string descriptor)
+	.iFunction = 0  //  Name of Audio interface (index of string descriptor) ???
 };
 
 
+#define GENERIC_MIC 0x0201
+#define USB_STREAMING 0x0101
 static const struct {
     struct usb_audio_header_descriptor_head header_head;
     struct usb_audio_header_descriptor_body header_body;
@@ -45,7 +48,7 @@ static const struct {
         .bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
         .bDescriptorSubtype = USB_AUDIO_TYPE_INPUT_TERMINAL,
         .bTerminalID = 1,
-        .wTerminalType = 0x0201, /* Radio receiver */ //was 0x0710
+        .wTerminalType = GENERIC_MIC, //generic MIC
         .bAssocTerminal = 0,
         .bNrChannels = 1,
         .wChannelConfig = 0, //MONO
@@ -57,7 +60,7 @@ static const struct {
         .bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
         .bDescriptorSubtype = USB_AUDIO_TYPE_OUTPUT_TERMINAL,
         .bTerminalID = 2, 
-        .wTerminalType = 0x0101, /* USB Streaming */
+        .wTerminalType = USB_STREAMING, /* USB Streaming */
         .bAssocTerminal = 0,
         .bSourceID = 1,
         .iTerminal = 0,
@@ -68,7 +71,7 @@ static const struct {
 static const struct usb_interface_descriptor audio_control_iface[] = {{
 	.bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
-	.bInterfaceNumber = 3,
+	.bInterfaceNumber = USB_AUDIO_MIC_CONTROL_INTERFACE_ADDR,
 	.bAlternateSetting = 0,
 	.bNumEndpoints = 0, //because no audio controll endpoint is present (optional)
 	.bInterfaceClass = USB_CLASS_AUDIO,
@@ -87,7 +90,7 @@ static const struct usb_audio_stream_audio_endpoint_descriptor audio_streaming_c
     .bLength = sizeof(struct usb_audio_stream_audio_endpoint_descriptor),
     .bDescriptorType = USB_AUDIO_DT_CS_ENDPOINT,
     .bDescriptorSubtype = 1, // EP_GENERAL 
-    .bmAttributes = 1, //was 0
+    .bmAttributes = 1, //was 0 (doesn't really matter)
     .bLockDelayUnits = 0x0, // PCM samples 
     .wLockDelay = 0x0000,
 } };
@@ -95,13 +98,10 @@ static const struct usb_audio_stream_audio_endpoint_descriptor audio_streaming_c
 static const struct usb_endpoint_descriptor isochronous_ep[] = { {
     .bLength = USB_DT_ENDPOINT_SIZE,
     .bDescriptorType = USB_DT_ENDPOINT,
-    .bEndpointAddress = 0x81,
+    .bEndpointAddress = USB_AUDIO_MIC_STREAMING_EP_ADDR,
     .bmAttributes =  USB_ENDPOINT_ATTR_ISOCHRONOUS, // USB_ENDPOINT_ATTR_ASYNC |
     .wMaxPacketSize = 256, //should not be too small otherwise it won't work
     .bInterval = 0x01, // 1 frame //was 0x01
-
-    // not using usb_audio_stream_endpoint_descriptor??
-    // (Why? These are USBv1.0 endpoint descriptors)
 
     .extra = &audio_streaming_cs_ep_desc[0],
     .extralen = sizeof(audio_streaming_cs_ep_desc[0])
@@ -145,7 +145,7 @@ static const struct {
 static const struct usb_interface_descriptor audio_streaming_iface[] = {{
     .bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
-	.bInterfaceNumber = 4,
+	.bInterfaceNumber = USB_AUDIO_MIC_STREAMING_INTERFACE_ADDR,
 	.bAlternateSetting = 0,
 	.bNumEndpoints = 0,
 	.bInterfaceClass = USB_CLASS_AUDIO,
@@ -161,7 +161,7 @@ static const struct usb_interface_descriptor audio_streaming_iface[] = {{
 {
 	.bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
-	.bInterfaceNumber = 4,
+	.bInterfaceNumber = USB_AUDIO_MIC_STREAMING_INTERFACE_ADDR,
 	.bAlternateSetting = 1,
 	.bNumEndpoints = 1,
 	.bInterfaceClass = USB_CLASS_AUDIO,

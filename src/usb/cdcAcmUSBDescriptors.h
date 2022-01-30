@@ -4,23 +4,25 @@
 #include <stdlib.h>
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/cdc.h>
+#include "usbAddresses.h"
+
 
 
 static const struct usb_iface_assoc_descriptor cdc_iface_assoc = {  //  Interface Association for sub-interfaces.
 	.bLength = USB_DT_INTERFACE_ASSOCIATION_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE_ASSOCIATION,
-	.bFirstInterface = 1,  //  First associated interface is comm_iface, interface ID is 1
+	.bFirstInterface = USB_CDC_ACM_CONTROL_INTERFACE_ADDR,  //  First associated interface is comm_iface, interface ID is 1
 	.bInterfaceCount = 2,  //  We have 2 associated interfaces: comm_iface and data_iface
 	.bFunctionClass = USB_CLASS_CDC,            //  This is a USB CDC (Comms Device Class) interface
 	.bFunctionSubClass = USB_CDC_SUBCLASS_ACM,  //  That implements ACM (Abstract Control Model)
 	.bFunctionProtocol = USB_CDC_PROTOCOL_AT,   //  Using the AT protocol
-	.iFunction = 3  //  Name of Serial Port (index of string descriptor)
+	.iFunction = USB_CDC_ACM_DEVICE_NAME_STRING_ID  //  Name of Serial Port (index of string descriptor)
 };
 
 static const struct usb_endpoint_descriptor data_endp[] = {{
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = 0x01, //0b1 = Endpoint number 1 + OUT
+	.bEndpointAddress = USB_CDC_ACM_DATA_RX_EP_ADDR, //0b1 = Endpoint number 1 + OUT
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64, 
 	.bInterval = 1,
@@ -29,7 +31,7 @@ static const struct usb_endpoint_descriptor data_endp[] = {{
 }, {
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = 0x82, //0b10000010 = Endpoint number 2 + IN
+	.bEndpointAddress = USB_CDC_ACM_DATA_TX_EP_ADDR, //0b10000010 = Endpoint number 2 + IN
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
 	.wMaxPacketSize = 64,
 	.bInterval = 1,
@@ -40,7 +42,7 @@ static const struct usb_endpoint_descriptor data_endp[] = {{
 static const struct usb_interface_descriptor data_iface[] = {{
 	.bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
-	.bInterfaceNumber = 2,
+	.bInterfaceNumber = USB_CDC_ACM_DATA_INTERFACE_ADDR,
 	.bAlternateSetting = 0,
 	.bNumEndpoints = 2, //number of endpoints (RX and TX)
 	.bInterfaceClass = USB_CLASS_DATA,
@@ -58,7 +60,7 @@ static const struct usb_interface_descriptor data_iface[] = {{
 static const struct usb_endpoint_descriptor comm_endp[] = {{
 	.bLength = USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = 0x83,
+	.bEndpointAddress = USB_CDC_ACM_CONTROL_EP_ADDR,
 	.bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
 	.wMaxPacketSize = 16,
 	.bInterval = 255,
@@ -104,7 +106,7 @@ static const struct {
 static const struct usb_interface_descriptor comm_iface[] = {{
 	.bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
-	.bInterfaceNumber = 1,
+	.bInterfaceNumber = USB_CDC_ACM_CONTROL_INTERFACE_ADDR,
 	.bAlternateSetting = 0,
 	.bNumEndpoints = 1,
 	.bInterfaceClass = USB_CLASS_CDC,
