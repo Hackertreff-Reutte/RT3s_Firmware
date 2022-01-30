@@ -30,7 +30,7 @@ static enum usbd_request_return_codes control_request(usbd_device *usbd_dev,
     //TODO ADD MORE CHECKS AND HANDLE THIS BETTER
     if(req->bRequest == USB_REQ_SET_INTERFACE){
 	    
-        streaming_iface_cur_altsetting = 1;
+        streaming_iface_mic_cur_altsetting = 1;
         //check for wIndex and wValue
         //gpio_set(GPIOE, GPIO0);
         return USBD_REQ_HANDLED;
