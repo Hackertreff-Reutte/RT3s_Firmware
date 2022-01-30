@@ -1,7 +1,8 @@
 #include "mainUSB.h"
+#include <libopencm3/cm3/nvic.h>
 
 /* Buffer to be used for control requests. */
-uint8_t usbd_control_buffer[256];
+uint8_t usbd_control_buffer[1024];
 
 const char *usb_strings[] = {
 	"UnHold Technologies",
@@ -12,6 +13,7 @@ const char *usb_strings[] = {
 
 
 //struct to handle controll messages
+
 static enum usbd_request_return_codes control_request(usbd_device *usbd_dev,
 	struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
 	void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
@@ -41,18 +43,15 @@ static enum usbd_request_return_codes control_request(usbd_device *usbd_dev,
 #define WAVEFORM_SAMPLES 16
 
 /* Samples interleaved L,R,L,R ==> actually samples/2 'time' samples */
-int16_t waveform_data[WAVEFORM_SAMPLES] = {0};
+int16_t waveform_data[WAVEFORM_SAMPLES] = {1};
+
+int16_t waveform_data2[WAVEFORM_SAMPLES] = {2};
 
 void init_waveform_data()
 {
     /* Just transmit a boring sawtooth waveform on both channels */
     for (int i = 0; i < WAVEFORM_SAMPLES; i++) {
-        if(i % 8 >= 4){
-            waveform_data[i] = 0xFFFF;
-        }else{
-            waveform_data[i] = 0;
-        }
-        
+        waveform_data[i] = 0xFFFF * i;
     }
 }
 
@@ -76,15 +75,20 @@ void toggle_isochronous_frame(uint8_t ep)
 
 void usbaudio_iso_stream_callback(usbd_device *usbd_dev, uint8_t ep)
 {
-    toggle_isochronous_frame(ep);
-    usbd_ep_write_packet(usbd_dev, 0x82, waveform_data, WAVEFORM_SAMPLES);
+    (void)ep;
+    //toggle_isochronous_frame(ep);
+    usbd_ep_write_packet(usbd_dev, 0x81, waveform_data, WAVEFORM_SAMPLES);
+    gpio_set(GPIOE, GPIO0);
+    
 }
 
 
 void set_config(usbd_device *usbd_dev, uint16_t wValue){
 
-    usbd_ep_setup(usbd_dev, 0x82, USB_ENDPOINT_ATTR_ISOCHRONOUS, WAVEFORM_SAMPLES, usbaudio_iso_stream_callback);
-    usbd_ep_write_packet(usbd_dev, 0x82, waveform_data, WAVEFORM_SAMPLES);
+    usbd_ep_setup(usbd_dev, 0x81, USB_ENDPOINT_ATTR_ISOCHRONOUS, WAVEFORM_SAMPLES, usbaudio_iso_stream_callback);
+
+
+    //usbd_ep_write_packet(usbd_dev, 0x82, waveform_data, WAVEFORM_SAMPLES);
 
     //set config cdc acm (usb uart)
     if(wValue == 0){
@@ -94,19 +98,24 @@ void set_config(usbd_device *usbd_dev, uint16_t wValue){
 
     //LOG EVERYTHING
     
+
+
     usbd_register_control_callback(
 				usbd_dev,
 				USB_REQ_TYPE_OUT | USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_INTERFACE,
 				0xFF,
 				control_request);
+
+    
                 
 }
 
 
 
 int setupUSB() {
+ 
+    usbd_device *usbd_dev_main;
 
-    usbd_device *usbd_dev;
 
     init_waveform_data();
 
@@ -128,15 +137,16 @@ int setupUSB() {
     gpio_set_af(GPIOA, GPIO_AF10, GPIO10 | GPIO11 | GPIO12);
 
     //setup the USB
-    usbd_dev = usbd_init(&otgfs_usb_driver, &device_descriptor, &config, usb_strings, 4, usbd_control_buffer, sizeof(usbd_control_buffer));
+    usbd_dev_main = usbd_init(&otgfs_usb_driver, &device_descriptor, &config, usb_strings, 4, usbd_control_buffer, sizeof(usbd_control_buffer));
     
     OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS | OTG_GCCFG_PWRDWN; //fix = https://github.com/libopencm3/libopencm3/issues/1309
     
     //setup confiog
-    usbd_register_set_config_callback(usbd_dev, set_config);
+    usbd_register_set_config_callback(usbd_dev_main, set_config);
+
 
 
     while (1) {
-		usbd_poll(usbd_dev);
+        usbd_poll(usbd_dev_main);
 	}
 }

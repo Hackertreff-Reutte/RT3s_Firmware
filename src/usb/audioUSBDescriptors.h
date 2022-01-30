@@ -77,18 +77,18 @@ static const struct usb_audio_stream_audio_endpoint_descriptor audio_streaming_c
     .bLength = sizeof(struct usb_audio_stream_audio_endpoint_descriptor),
     .bDescriptorType = USB_AUDIO_DT_CS_ENDPOINT,
     .bDescriptorSubtype = 1, // EP_GENERAL 
-    .bmAttributes = 0,
-    .bLockDelayUnits = 0x02, // PCM samples 
+    .bmAttributes = 1, //was 0
+    .bLockDelayUnits = 0x0, // PCM samples 
     .wLockDelay = 0x0000,
 } };
 
 static const struct usb_endpoint_descriptor isochronous_ep[] = { {
     .bLength = USB_DT_ENDPOINT_SIZE,
     .bDescriptorType = USB_DT_ENDPOINT,
-    .bEndpointAddress = 0x82,
-    .bmAttributes = USB_ENDPOINT_ATTR_ASYNC | USB_ENDPOINT_ATTR_ISOCHRONOUS,
-    .wMaxPacketSize = 254, //maybe it comes from 16 * 16?? was 256
-    .bInterval = 0x01, // 1 millisecond 
+    .bEndpointAddress = 0x81,
+    .bmAttributes =  USB_ENDPOINT_ATTR_ISOCHRONOUS, // USB_ENDPOINT_ATTR_ASYNC |
+    .wMaxPacketSize = 16, //maybe it comes from 16 * 16?? was 256
+    .bInterval = 0x01, // 1 frame 
 
     // not using usb_audio_stream_endpoint_descriptor??
     // (Why? These are USBv1.0 endpoint descriptors)
