@@ -73,7 +73,7 @@ void toggle_isochronous_frame(uint8_t ep)
 void usbaudio_iso_stream_callback(usbd_device *usbd_dev, uint8_t ep)
 {
     (void)ep;
-    //toggle_isochronous_frame(ep);
+    toggle_isochronous_frame(ep);
 
     //2 times the waveform_smaples because 16 * 16bit = 16 * 2 = 32 byte
     usbd_ep_write_packet(usbd_dev, 0x81, waveform_data, WAVEFORM_SAMPLES * 2);
@@ -85,13 +85,16 @@ void set_config(usbd_device *usbd_dev, uint16_t wValue){
     usbd_ep_setup(usbd_dev, 0x81, USB_ENDPOINT_ATTR_ISOCHRONOUS, WAVEFORM_SAMPLES * 2, usbaudio_iso_stream_callback);
 
 
+    //maybe place this somewhere else?
     usbd_ep_write_packet(usbd_dev, 0x81, waveform_data, WAVEFORM_SAMPLES * 2);
 
     //set config cdc acm (usb uart)
     if(wValue == 0){
 
     }
-    //cdcacm_set_config(usbd_dev, wValue);
+
+    //setup cdc acm
+    cdcacm_set_config(usbd_dev, wValue);
 
     //LOG EVERYTHING
     

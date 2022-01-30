@@ -6,6 +6,16 @@
 
 #define SAMPLE_RATE 8000
 
+static const struct usb_iface_assoc_descriptor audio_iface_assoc = {  //  Interface Association for sub-interfaces.
+	.bLength = USB_DT_INTERFACE_ASSOCIATION_SIZE,
+	.bDescriptorType = USB_DT_INTERFACE_ASSOCIATION,
+	.bFirstInterface = 3,  //  First associated interface is audio_control_iface, interface ID is 3
+	.bInterfaceCount = 2,  //  We have 2 associated interfaces: audio_control_iface and audio_streaming_iface
+	.bFunctionClass = USB_CLASS_AUDIO, //  This is a USB AUDIO (Audio Device Class) interface
+	.bFunctionSubClass = 0x02,  //  not sure what this is (maybe audio conntroll)
+	.bFunctionProtocol = 1,   //  not sure why
+	.iFunction = 3  //  Name of Audio interface (index of string descriptor)
+};
 
 
 static const struct {

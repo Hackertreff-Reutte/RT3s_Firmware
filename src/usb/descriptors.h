@@ -28,7 +28,6 @@ const struct usb_device_descriptor device_descriptor = {
 static uint8_t streaming_iface_cur_altsetting = 1;
 
 const struct usb_interface ifaces[] = {
-	/*
 {
 	.cur_altsetting = 0,
 	.num_altsetting = 1,
@@ -40,11 +39,11 @@ const struct usb_interface ifaces[] = {
 	.num_altsetting = 1,
 	.iface_assoc = NULL,
 	.altsetting = data_iface,
-}, */
+}, 
 {
 	.cur_altsetting = 0,
 	.num_altsetting = 1,
-	.iface_assoc = NULL,
+	.iface_assoc = &audio_iface_assoc,
 	.altsetting = audio_control_iface,
 }, 
 {
@@ -59,7 +58,7 @@ const struct usb_config_descriptor config = {
 	.bLength = USB_DT_CONFIGURATION_SIZE,
 	.bDescriptorType = USB_DT_CONFIGURATION,
 	.wTotalLength = 0, //is calculated automatically
-	.bNumInterfaces = 2, //number of interfaces
+	.bNumInterfaces = 4, //number of interfaces
 	.bConfigurationValue = 1, //configuration value
 	.iConfiguration = 0, //index of string descriptor describing this descriptor (0 = none)
 	.bmAttributes = 0x80, //power managment = (default)
