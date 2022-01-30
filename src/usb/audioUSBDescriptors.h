@@ -87,7 +87,7 @@ static const struct usb_endpoint_descriptor isochronous_ep[] = { {
     .bDescriptorType = USB_DT_ENDPOINT,
     .bEndpointAddress = 0x81,
     .bmAttributes =  USB_ENDPOINT_ATTR_ISOCHRONOUS, // USB_ENDPOINT_ATTR_ASYNC |
-    .wMaxPacketSize = 256, //was 256
+    .wMaxPacketSize = 256, //should not be too small otherwise it won't work
     .bInterval = 0x01, // 1 frame //was 0x01
 
     // not using usb_audio_stream_endpoint_descriptor??

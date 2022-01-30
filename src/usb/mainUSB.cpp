@@ -43,11 +43,12 @@ static enum usbd_request_return_codes control_request(usbd_device *usbd_dev,
 #define WAVEFORM_SAMPLES 16
 
 int16_t waveform_data[WAVEFORM_SAMPLES] = {0};
+
 void init_waveform_data()
 {
     /* Just transmit a boring sawtooth waveform on both channels */
     for (int i = 0; i < WAVEFORM_SAMPLES; i++) {
-        waveform_data[i] = 4102 * i;
+        waveform_data[i] = 4095 * i - 4095 * WAVEFORM_SAMPLES / 2;
     }
 }
 
@@ -73,6 +74,8 @@ void usbaudio_iso_stream_callback(usbd_device *usbd_dev, uint8_t ep)
 {
     (void)ep;
     //toggle_isochronous_frame(ep);
+
+    //2 times the waveform_smaples because 16 * 16bit = 16 * 2 = 32 byte
     usbd_ep_write_packet(usbd_dev, 0x81, waveform_data, WAVEFORM_SAMPLES * 2);
 }
 
