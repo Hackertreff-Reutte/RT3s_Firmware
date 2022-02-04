@@ -24,28 +24,35 @@ static const struct usb_iface_assoc_descriptor audio_mic_iface_assoc = {  //  In
 */
 #define GENERIC_MIC 0x0201
 #define USB_STREAMING 0x0101
-/*
+#define GENERIC_SPEAKER 0x301
+
 static const struct {
     struct usb_audio_header_descriptor_head header_head;
-    struct usb_audio_header_descriptor_body header_body;
+    struct usb_audio_header_descriptor_body header_mic_body;
+    struct usb_audio_header_descriptor_body header_speaker_body;
     struct usb_audio_input_terminal_descriptor input_mic_terminal_desc;
     struct usb_audio_output_terminal_descriptor output_mic_terminal_desc;
+    struct usb_audio_input_terminal_descriptor input_speaker_terminal_desc;
+    struct usb_audio_output_terminal_descriptor output_speaker_terminal_desc;
 } __attribute__((packed)) audio_control_functional_descriptors = {
     .header_head = {
-        .bLength = sizeof(struct usb_audio_header_descriptor_head) +
-                   1 * sizeof(struct usb_audio_header_descriptor_body),
+        .bLength = sizeof(struct usb_audio_header_descriptor_head)+
+                   sizeof(struct usb_audio_header_descriptor_body) * 2,
         .bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
         .bDescriptorSubtype = USB_AUDIO_TYPE_HEADER,
         .bcdADC = 0x0100, //(Audio Device Class Specification Release Number)
         .wTotalLength =
                sizeof(struct usb_audio_header_descriptor_head) +
-               1 * sizeof(struct usb_audio_header_descriptor_body) +
-               sizeof(usb_audio_input_terminal_descriptor) +
-               sizeof(struct usb_audio_output_terminal_descriptor),
-        .binCollection = 1, //only 1 AudioStreaming Interface (Change this is another is added)
+               sizeof(struct usb_audio_header_descriptor_body) * 2 +
+               sizeof(usb_audio_input_terminal_descriptor) * 2 +
+               sizeof(struct usb_audio_output_terminal_descriptor) * 2,
+        .binCollection = 2, //only 2 AudioStreaming Interface (Change this is another is added)
     },
-    .header_body = {
+    .header_mic_body = {
         .baInterfaceNr = 4, //the first audio interface number
+    },
+    .header_speaker_body = {
+        .baInterfaceNr = 6, //the second audio interface number
     },
     .input_mic_terminal_desc = {
         .bLength = sizeof(struct usb_audio_input_terminal_descriptor),
@@ -53,7 +60,7 @@ static const struct {
         .bDescriptorSubtype = USB_AUDIO_TYPE_INPUT_TERMINAL,
         .bTerminalID = 1,
         .wTerminalType = GENERIC_MIC, //generic MIC
-        .bAssocTerminal = 0,
+        .bAssocTerminal = 4,
         .bNrChannels = 1,
         .wChannelConfig = 0, //MONO
         .iChannelNames = 0,
@@ -67,6 +74,28 @@ static const struct {
         .wTerminalType = USB_STREAMING, // USB Streaming 
         .bAssocTerminal = 0,
         .bSourceID = 1,
+        .iTerminal = 0,
+    },
+    .input_speaker_terminal_desc = {
+        .bLength = sizeof(struct usb_audio_input_terminal_descriptor),
+        .bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
+        .bDescriptorSubtype = USB_AUDIO_TYPE_INPUT_TERMINAL,
+        .bTerminalID = 3,
+        .wTerminalType = USB_STREAMING,
+        .bAssocTerminal = 0,
+        .bNrChannels = 1,
+        .wChannelConfig = 0, //MONO
+        .iChannelNames = 0,
+        .iTerminal = 0,
+    },
+    .output_speaker_terminal_desc = {
+        .bLength = sizeof(struct usb_audio_output_terminal_descriptor),
+        .bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
+        .bDescriptorSubtype = USB_AUDIO_TYPE_OUTPUT_TERMINAL,
+        .bTerminalID = 4, 
+        .wTerminalType = GENERIC_SPEAKER,
+        .bAssocTerminal = 1,
+        .bSourceID = 3,
         .iTerminal = 0,
     }
 };
@@ -90,6 +119,7 @@ static const struct usb_interface_descriptor audio_control_iface[] = {{
 } };
 
 
+
 static const struct usb_audio_stream_audio_endpoint_descriptor audio_streaming_cs_ep_desc[] = { {
     .bLength = sizeof(struct usb_audio_stream_audio_endpoint_descriptor),
     .bDescriptorType = USB_AUDIO_DT_CS_ENDPOINT,
@@ -111,12 +141,13 @@ static const struct usb_endpoint_descriptor isochronous_mic_ep[] = { {
     .extralen = sizeof(audio_streaming_cs_ep_desc[0])
 } };
 
-*/
+
+
 #define AS_GENERAL 0x01
 #define PCM_FORMAT 0x0001
 #define FORMAT_TYPE 0x02
 
-/*
+
 static const struct {
     struct usb_audio_stream_interface_descriptor audio_cs_streaming_iface_desc;
     struct usb_audio_format_type1_descriptor_1freq audio_type1_format_desc;
@@ -178,17 +209,17 @@ static const struct usb_interface_descriptor audio_mic_streaming_iface[] = {{
     .extra = &audio_streaming_mic_functional_descriptors,
     .extralen = sizeof(audio_streaming_mic_functional_descriptors)
 } };
-*/
+
 
 // ------------------------- SPEAKER ---------------------------------------
 
-#define GENERIC_SPEAKER 0x301
 
+/*
 static const struct {
     struct usb_audio_header_descriptor_head header_head;
     struct usb_audio_header_descriptor_body header_body;
-    struct usb_audio_input_terminal_descriptor input_mic_terminal_desc;
-    struct usb_audio_output_terminal_descriptor output_mic_terminal_desc;
+    struct usb_audio_input_terminal_descriptor input_speaker_terminal_desc;
+    struct usb_audio_output_terminal_descriptor output_speaker_terminal_desc;
 } __attribute__((packed)) audio_control_functional_descriptors2 = {
     .header_head = {
         .bLength = sizeof(struct usb_audio_header_descriptor_head) +
@@ -206,7 +237,7 @@ static const struct {
     .header_body = {
         .baInterfaceNr = 6, //the first audio interface number
     },
-    .input_mic_terminal_desc = {
+    .input_speaker_terminal_desc = {
         .bLength = sizeof(struct usb_audio_input_terminal_descriptor),
         .bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
         .bDescriptorSubtype = USB_AUDIO_TYPE_INPUT_TERMINAL,
@@ -218,7 +249,7 @@ static const struct {
         .iChannelNames = 0,
         .iTerminal = 0,
     },
-    .output_mic_terminal_desc = {
+    .output_speaker_terminal_desc = {
         .bLength = sizeof(struct usb_audio_output_terminal_descriptor),
         .bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
         .bDescriptorSubtype = USB_AUDIO_TYPE_OUTPUT_TERMINAL,
@@ -229,8 +260,10 @@ static const struct {
         .iTerminal = 0,
     }
 };
+*/
 
 
+/*
 static const struct usb_interface_descriptor audio_speaker_control_iface[] = {{
 	.bLength = USB_DT_INTERFACE_SIZE,
 	.bDescriptorType = USB_DT_INTERFACE,
@@ -247,22 +280,12 @@ static const struct usb_interface_descriptor audio_speaker_control_iface[] = {{
     .extra = &audio_control_functional_descriptors2,
     .extralen = sizeof(audio_control_functional_descriptors2)
 } };
-
-
-
-static const struct usb_audio_stream_audio_endpoint_descriptor audio_streaming_cs_ep_desc[] = { {
-    .bLength = sizeof(struct usb_audio_stream_audio_endpoint_descriptor),
-    .bDescriptorType = USB_AUDIO_DT_CS_ENDPOINT,
-    .bDescriptorSubtype = 1, // EP_GENERAL 
-    .bmAttributes = 1, //was 0 (doesn't really matter)
-    .bLockDelayUnits = 0x0, // PCM samples 
-    .wLockDelay = 0x0000,
-} };
+*/
 
 static const struct usb_endpoint_descriptor isochronous_speaker_ep[] = { {
     .bLength = USB_DT_ENDPOINT_SIZE,
     .bDescriptorType = USB_DT_ENDPOINT,
-    .bEndpointAddress = USB_AUDIO_MIC_STREAMING_EP_ADDR,
+    .bEndpointAddress = USB_ENDPOINT_ADDR_OUT(2), //TODO add them to the usbAddresses
     .bmAttributes =  USB_ENDPOINT_ATTR_ISOCHRONOUS, // USB_ENDPOINT_ATTR_ASYNC |
     .wMaxPacketSize = 256, //should not be too small otherwise it won't work
     .bInterval = 0x01, // 1 frame //was 0x01
@@ -279,7 +302,7 @@ static const struct {
         .bLength = sizeof(struct usb_audio_stream_interface_descriptor),
         .bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
         .bDescriptorSubtype = AS_GENERAL,
-        .bTerminalLink = 1, //output terminal
+        .bTerminalLink = 4, //output terminal
         .bDelay = 0x1, //one frame delay 
         .wFormatTag = PCM_FORMAT,
     },
