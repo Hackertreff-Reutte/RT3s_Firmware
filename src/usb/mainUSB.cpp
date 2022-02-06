@@ -14,17 +14,15 @@ const char *usb_strings[] = {
 
 //struct to handle controll messages
 
-static enum usbd_request_return_codes control_request(usbd_device *usbd_dev,
+static enum usbd_request_return_codes audio_control_request(usbd_device *usbd_dev,
 	struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
 	void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
 	(void)complete;
 	(void)buf;
 	(void)usbd_dev;
+    (void)len;
 
-    if(req->bRequest == 0 && *len < sizeof(struct usb_cdc_line_coding)){
-        __asm__("nop");
-    }
 
     //this is the set alt interface request 
     //TODO ADD MORE CHECKS AND HANDLE THIS BETTER
@@ -37,6 +35,26 @@ static enum usbd_request_return_codes control_request(usbd_device *usbd_dev,
     }
     
     return USBD_REQ_NOTSUPP;
+}
+
+
+static enum usbd_request_return_codes audio_control_request_endpoint(usbd_device *usbd_dev,
+	struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
+	void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
+{
+	(void)complete;
+	(void)buf;
+	(void)usbd_dev;
+    (void)len;
+    (void)req;
+
+    if(req->bmRequestType == 0x22){
+        return USBD_REQ_HANDLED;    
+    }else{
+        return USBD_REQ_NOTSUPP;
+    }
+
+    
 }
 
 
@@ -70,20 +88,29 @@ void toggle_isochronous_frame(uint8_t ep)
     }
 }
 
-void usbaudio_iso_stream_callback(usbd_device *usbd_dev, uint8_t ep)
+void usbaudio_iso_mic_stream_callback(usbd_device *usbd_dev, uint8_t ep)
 {
     (void)ep;
     toggle_isochronous_frame(ep);
 
-    //TODO add check here to see if its the right endpoint
     //2 times the waveform_smaples because 16 * 16bit = 16 * 2 = 32 byte
     usbd_ep_write_packet(usbd_dev, USB_AUDIO_MIC_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);
 }
 
 
+int16_t waveform_data2[WAVEFORM_SAMPLES] = {0};
+void usbaudio_iso_speaker_stream_callback(usbd_device *usbd_dev, uint8_t ep)
+{
+    (void)ep;
+    toggle_isochronous_frame(ep);
+
+    usbd_ep_read_packet(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, waveform_data2, WAVEFORM_SAMPLES * 2);
+}
+
 void set_config(usbd_device *usbd_dev, uint16_t wValue){
 
-    usbd_ep_setup(usbd_dev, USB_AUDIO_MIC_STREAMING_EP_ADDR, USB_ENDPOINT_ATTR_ISOCHRONOUS, WAVEFORM_SAMPLES * 2, usbaudio_iso_stream_callback);
+    usbd_ep_setup(usbd_dev, USB_AUDIO_MIC_STREAMING_EP_ADDR, USB_ENDPOINT_ATTR_ISOCHRONOUS, WAVEFORM_SAMPLES * 2, usbaudio_iso_mic_stream_callback);
+    usbd_ep_setup(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, USB_ENDPOINT_ATTR_ISOCHRONOUS, WAVEFORM_SAMPLES * 2, usbaudio_iso_speaker_stream_callback);
 
 
     //maybe place this somewhere else?
@@ -97,13 +124,23 @@ void set_config(usbd_device *usbd_dev, uint16_t wValue){
     //setup cdc acm
     cdcacm_set_config(usbd_dev, wValue);
 
-    //LOG EVERYTHING
     
     usbd_register_control_callback(
 				usbd_dev,
 				USB_REQ_TYPE_OUT | USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_INTERFACE,
 				0xFF,
-				control_request);
+				audio_control_request);
+
+
+
+    //LOG EVERYTHING
+    //TODO change this (set frequency callback)
+    usbd_register_control_callback(
+				usbd_dev,
+				USB_REQ_TYPE_OUT | USB_REQ_TYPE_CLASS | USB_REQ_TYPE_ENDPOINT,
+				0xFF,
+				audio_control_request_endpoint);
+    
                 
 }
 
