@@ -53,12 +53,10 @@ static enum usbd_request_return_codes audio_control_request_endpoint(usbd_device
     }else{
         return USBD_REQ_NOTSUPP;
     }
-
-    
 }
 
 
-#define WAVEFORM_SAMPLES 16
+#define WAVEFORM_SAMPLES 8
 
 int16_t waveform_data[WAVEFORM_SAMPLES] = {0};
 
@@ -104,7 +102,8 @@ void usbaudio_iso_speaker_stream_callback(usbd_device *usbd_dev, uint8_t ep)
     (void)ep;
     toggle_isochronous_frame(ep);
 
-    usbd_ep_read_packet(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, waveform_data2, WAVEFORM_SAMPLES * 2);
+    usbd_ep_read_packet(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);
+    //usbd_ep_write_packet(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, 0, 0); //needed ????
 }
 
 void set_config(usbd_device *usbd_dev, uint16_t wValue){
@@ -115,7 +114,7 @@ void set_config(usbd_device *usbd_dev, uint16_t wValue){
 
     //maybe place this somewhere else?
     usbd_ep_write_packet(usbd_dev, USB_AUDIO_MIC_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);
-
+    //usbd_ep_read_packet(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2); //TODO check this
     //set config cdc acm (usb uart)
     if(wValue == 0){
 
@@ -138,7 +137,7 @@ void set_config(usbd_device *usbd_dev, uint16_t wValue){
     usbd_register_control_callback(
 				usbd_dev,
 				USB_REQ_TYPE_OUT | USB_REQ_TYPE_CLASS | USB_REQ_TYPE_ENDPOINT,
-				0xFF,
+				0xFF,//0b01111111,  //8 bit zero catch IN and OUT 
 				audio_control_request_endpoint);
     
                 
