@@ -105,11 +105,10 @@ void usbaudio_iso_mic_stream_callback(usbd_device *usbd_dev, uint8_t ep)
     toggle_isochronous_frame_mic(ep);
 
     //2 times the waveform_smaples because 16 * 16bit = 16 * 2 = 32 byte
-    usbd_ep_write_packet(usbd_dev, USB_AUDIO_MIC_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);
+    usbd_ep_write_packet(usbd_dev, USB_AUDIO_MIC_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);   
 }
 
 
-int16_t waveform_data2[WAVEFORM_SAMPLES] = {0};
 void usbaudio_iso_speaker_stream_callback(usbd_device *usbd_dev, uint8_t ep)
 {
     (void)ep;
