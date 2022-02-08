@@ -100,7 +100,7 @@ int16_t waveform_data2[WAVEFORM_SAMPLES] = {0};
 void usbaudio_iso_speaker_stream_callback(usbd_device *usbd_dev, uint8_t ep)
 {
     (void)ep;
-    toggle_isochronous_frame(ep);
+    //toggle_isochronous_frame(ep); (do not toogle here????? or own toggle?? )
 
     usbd_ep_read_packet(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);
     //usbd_ep_write_packet(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, 0, 0); //needed ????
