@@ -28,7 +28,6 @@ const struct usb_device_descriptor device_descriptor = {
 static uint8_t streaming_iface_mic_cur_altsetting = 1;
 
 const struct usb_interface ifaces[] = {
-	/*
 {
 	.cur_altsetting = 0,
 	.num_altsetting = 1,
@@ -41,11 +40,10 @@ const struct usb_interface ifaces[] = {
 	.iface_assoc = NULL,
 	.altsetting = data_iface,
 }, 
-*/
 {
 	.cur_altsetting = 0,
 	.num_altsetting = 1,
-	.iface_assoc = 0,//&audio_mic_iface_assoc,
+	.iface_assoc = &audio_mic_iface_assoc,
 	.altsetting = audio_control_iface,
 }, 
 {
@@ -54,14 +52,6 @@ const struct usb_interface ifaces[] = {
 	.iface_assoc = NULL,
 	.altsetting = audio_mic_streaming_iface,
 },
-/*
-{
-	.cur_altsetting = 0,
-	.num_altsetting = 1,
-	.iface_assoc = NULL,
-	.altsetting = audio_speaker_control_iface,
-}, 
-*/
 {
 	.cur_altsetting = &streaming_iface_mic_cur_altsetting,
 	.num_altsetting = 2,
