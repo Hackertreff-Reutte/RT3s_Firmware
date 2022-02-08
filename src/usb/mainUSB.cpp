@@ -76,7 +76,7 @@ void init_waveform_data()
 #define USB_REBASE(x) MMIO32((x) + (USB_OTG_FS_BASE))
 #define USB_DIEPCTLX_SD1PID     (1 << 29) // Odd frames 
 #define USB_DIEPCTLX_SD0PID     (1 << 28) // Even frames 
-void toggle_isochronous_frame(uint8_t ep)
+void toggle_isochronous_frame_mic(uint8_t ep)
 {
     static int toggle = 0;
     if (toggle++ % 2 == 0) {
@@ -86,10 +86,23 @@ void toggle_isochronous_frame(uint8_t ep)
     }
 }
 
+/*
+// not needed for speaker???? 
+void toggle_isochronous_frame_speaker(uint8_t ep)
+{
+    static int toggle_speaker = 0;
+    if (toggle_speaker++ % 2 == 0) {
+        USB_REBASE(OTG_DIEPCTL(ep)) |= USB_DIEPCTLX_SD0PID;
+    } else {
+        USB_REBASE(OTG_DIEPCTL(ep)) |= USB_DIEPCTLX_SD1PID;
+    }
+}
+*/
+
 void usbaudio_iso_mic_stream_callback(usbd_device *usbd_dev, uint8_t ep)
 {
     (void)ep;
-    toggle_isochronous_frame(ep);
+    toggle_isochronous_frame_mic(ep);
 
     //2 times the waveform_smaples because 16 * 16bit = 16 * 2 = 32 byte
     usbd_ep_write_packet(usbd_dev, USB_AUDIO_MIC_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);
@@ -100,7 +113,7 @@ int16_t waveform_data2[WAVEFORM_SAMPLES] = {0};
 void usbaudio_iso_speaker_stream_callback(usbd_device *usbd_dev, uint8_t ep)
 {
     (void)ep;
-    //toggle_isochronous_frame(ep); (do not toogle here????? or own toggle?? )
+    //toggle_isochronous_frame_speaker(ep); //(do not toogle here????? or own toggle?? )
 
     usbd_ep_read_packet(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);
     //usbd_ep_write_packet(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, 0, 0); //needed ????

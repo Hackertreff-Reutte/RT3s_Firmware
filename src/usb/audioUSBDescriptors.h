@@ -150,11 +150,13 @@ static const struct usb_audio_stream_audio_endpoint_descriptor audio_streaming_c
     .wLockDelay = 0x0000,
 } };
 
+//------------------------------------- MIC -------------------------------------------
+
 static const struct usb_endpoint_descriptor isochronous_mic_ep[] = { {
     .bLength = USB_DT_ENDPOINT_SIZE,
     .bDescriptorType = USB_DT_ENDPOINT,
     .bEndpointAddress = USB_AUDIO_MIC_STREAMING_EP_ADDR,
-    .bmAttributes =  USB_ENDPOINT_ATTR_ISOCHRONOUS, // USB_ENDPOINT_ATTR_ASYNC |
+    .bmAttributes =  USB_ENDPOINT_ATTR_ISOCHRONOUS | USB_ENDPOINT_ATTR_ADAPTIVE,
     .wMaxPacketSize = 256, //should not be too small otherwise it won't work
     .bInterval = 0x01, // 1 frame //was 0x01
 
@@ -168,8 +170,6 @@ static const struct usb_endpoint_descriptor isochronous_mic_ep[] = { {
 #define PCM_FORMAT 0x0001
 #define FORMAT_TYPE 0x02
 
-
-//------------------------------------- MIC -------------------------------------------
 
 static const struct {
     struct usb_audio_stream_interface_descriptor audio_cs_streaming_iface_desc;
@@ -241,7 +241,7 @@ static const struct usb_endpoint_descriptor isochronous_speaker_ep[] = { {
     .bLength = USB_DT_ENDPOINT_SIZE,
     .bDescriptorType = USB_DT_ENDPOINT,
     .bEndpointAddress = USB_AUDIO_SPEAKER_STREAMING_EP_ADDR,
-    .bmAttributes =  USB_ENDPOINT_ATTR_ISOCHRONOUS,
+    .bmAttributes =  USB_ENDPOINT_ATTR_ISOCHRONOUS | USB_ENDPOINT_ATTR_ADAPTIVE,
     .wMaxPacketSize = 256,//256, //should not be too small otherwise it won't work
     .bInterval = 0x01, // 1 frame //was 0x01
 
