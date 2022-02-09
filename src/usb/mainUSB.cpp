@@ -60,6 +60,7 @@ static enum usbd_request_return_codes audio_control_request_endpoint(usbd_device
 
 int16_t waveform_data[WAVEFORM_SAMPLES] = {0};
 
+//generate sawthooth, but is no longer used (first speaker package overrides it)
 void init_waveform_data()
 {
     /* Just transmit a boring sawtooth waveform on both channels */
@@ -72,50 +73,47 @@ void init_waveform_data()
  * correctly. We must program the USB peripheral with an even/odd frame bit,
  * toggling it so that we respond to every iso IN request from the host.
  * If this toggling is not performed, we only get half the bandwidth. */
-
 #define USB_REBASE(x) MMIO32((x) + (USB_OTG_FS_BASE))
 #define USB_DIEPCTLX_SD1PID     (1 << 29) // Odd frames 
 #define USB_DIEPCTLX_SD0PID     (1 << 28) // Even frames 
 void toggle_isochronous_frame_mic(uint8_t ep)
 {
-    static int toggle = 0;
-    if (toggle++ % 2 == 0) {
-        USB_REBASE(OTG_DIEPCTL(ep)) |= USB_DIEPCTLX_SD0PID;
+    static int toggle_mic = 0;
+    if (toggle_mic++ % 2 == 0) {
+        USB_REBASE(OTG_DIEPCTL(ep)) |= USB_DIEPCTLX_SD0PID; //OTG_DIEPCTL because IN endpoint
     } else {
         USB_REBASE(OTG_DIEPCTL(ep)) |= USB_DIEPCTLX_SD1PID;
     }
 }
 
-/*
-// not needed for speaker???? 
 void toggle_isochronous_frame_speaker(uint8_t ep)
 {
     static int toggle_speaker = 0;
     if (toggle_speaker++ % 2 == 0) {
-        USB_REBASE(OTG_DIEPCTL(ep)) |= USB_DIEPCTLX_SD0PID;
+        USB_REBASE(OTG_DOEPCTL(ep)) |= USB_DIEPCTLX_SD0PID;  //OTG_DOEPCTL because OUT endpoint
     } else {
-        USB_REBASE(OTG_DIEPCTL(ep)) |= USB_DIEPCTLX_SD1PID;
+        USB_REBASE(OTG_DOEPCTL(ep)) |= USB_DIEPCTLX_SD1PID;
     }
 }
-*/
+
 
 void usbaudio_iso_mic_stream_callback(usbd_device *usbd_dev, uint8_t ep)
 {
     (void)ep;
     toggle_isochronous_frame_mic(ep);
 
-    //2 times the waveform_smaples because 16 * 16bit = 16 * 2 = 32 byte
-    usbd_ep_write_packet(usbd_dev, USB_AUDIO_MIC_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);   
+    //2 times the waveform_smaples because 8 * 16bit = 16 * 2 = 32 byte
+    usbd_ep_write_packet(usbd_dev, USB_AUDIO_MIC_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);
+
 }
 
 
 void usbaudio_iso_speaker_stream_callback(usbd_device *usbd_dev, uint8_t ep)
 {
     (void)ep;
-    //toggle_isochronous_frame_speaker(ep); //(do not toogle here????? or own toggle?? )
+    toggle_isochronous_frame_speaker(ep);
 
     usbd_ep_read_packet(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);
-    //usbd_ep_write_packet(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, 0, 0); //needed ????
 }
 
 void set_config(usbd_device *usbd_dev, uint16_t wValue){
@@ -135,7 +133,7 @@ void set_config(usbd_device *usbd_dev, uint16_t wValue){
     //setup cdc acm
     cdcacm_set_config(usbd_dev, wValue);
 
-    
+
     usbd_register_control_callback(
 				usbd_dev,
 				USB_REQ_TYPE_OUT | USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_INTERFACE,
@@ -149,16 +147,15 @@ void set_config(usbd_device *usbd_dev, uint16_t wValue){
     usbd_register_control_callback(
 				usbd_dev,
 				USB_REQ_TYPE_OUT | USB_REQ_TYPE_CLASS | USB_REQ_TYPE_ENDPOINT,
-				0xFF,//0b01111111,  //8 bit zero catch IN and OUT 
+				0xFF,//0b01111111,  //8 bit zero catch IN and OUT
 				audio_control_request_endpoint);
-    
-                
+
 }
 
 
 
 int setupUSB() {
- 
+
     usbd_device *usbd_dev_main;
 
 
@@ -183,9 +180,9 @@ int setupUSB() {
 
     //setup the USB
     usbd_dev_main = usbd_init(&otgfs_usb_driver, &device_descriptor, &config, usb_strings, sizeof(usb_strings)/sizeof(char*), usbd_control_buffer, sizeof(usbd_control_buffer));
-    
+
     OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS | OTG_GCCFG_PWRDWN; //fix = https://github.com/libopencm3/libopencm3/issues/1309
-    
+
     //setup confiog
     usbd_register_set_config_callback(usbd_dev_main, set_config);
 
