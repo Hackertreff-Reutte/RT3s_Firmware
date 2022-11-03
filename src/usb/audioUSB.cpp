@@ -21,7 +21,6 @@ enum usbd_request_return_codes audio_control_request(usbd_device *usbd_dev,
 
         streaming_iface_mic_cur_altsetting = 1;
         //check for wIndex and wValue
-        //gpio_set(GPIOE, GPIO0);
         return USBD_REQ_HANDLED;
     }
 
@@ -100,4 +99,8 @@ void usbaudio_iso_speaker_stream_callback(usbd_device *usbd_dev, uint8_t ep)
     toggle_isochronous_frame_speaker(ep);
 
     usbd_ep_read_packet(usbd_dev, USB_AUDIO_SPEAKER_STREAMING_EP_ADDR, waveform_data, WAVEFORM_SAMPLES * 2);
+}
+
+void setup_audio(){
+    init_waveform_data();
 }

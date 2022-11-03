@@ -29,7 +29,8 @@ enum usbd_request_return_codes audio_control_request_endpoint(usbd_device *usbd_
 
 void usbaudio_iso_mic_stream_callback(usbd_device *usbd_dev, uint8_t ep);
 void usbaudio_iso_speaker_stream_callback(usbd_device *usbd_dev, uint8_t ep);
-
+void setup_audio();
 //will be removed later
 void init_waveform_data();
+
 #endif

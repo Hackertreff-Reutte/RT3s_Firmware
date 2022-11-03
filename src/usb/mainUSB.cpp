@@ -56,16 +56,11 @@ void pollUSB(){
 
 int setupUSB() {
 
-
-    init_waveform_data();
-
-    rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+    setup_cdc();
+    setup_audio();
 
     //enable GPIOA
     rcc_periph_clock_enable(RCC_GPIOA);
-
-    //LED
-    gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
 
     //enable fullspeed
     rcc_periph_clock_enable(RCC_OTGFS);
@@ -83,8 +78,6 @@ int setupUSB() {
 
     //setup confiog
     usbd_register_set_config_callback(usbd_dev_main, set_config);
-
-    setup_cdc();
 
     return 0;
 }
