@@ -17,7 +17,7 @@
 #include "usbAddresses.h"
 
 
-
+extern usbd_device *usbd_dev_main;
 
 int setupUSB();
 

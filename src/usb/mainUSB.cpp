@@ -49,10 +49,9 @@ void set_config(usbd_device *usbd_dev, uint16_t wValue){
 }
 
 
+usbd_device *usbd_dev_main;
 
 int setupUSB() {
-
-    usbd_device *usbd_dev_main;
 
 
     init_waveform_data();

@@ -14,35 +14,29 @@ void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	//read the incoming packet
 	int len = usbd_ep_read_packet(usbd_dev, USB_CDC_ACM_DATA_RX_EP_ADDR, buf, 64);
 
-	//store data in rx_buffer and wait for an 'A'
-	int tx = 0;
+	//store data in rx_buffer
 	for(int i = 0; i < len; i++){
-
-		if(buf[i] == 'A'){
-			tx = 1;
-		}
-
-
 		if(rx_buffer.status != RB_FULL){
 			RB_write(&rx_buffer, &buf[i]);
 		}
 	}
-
-	//write back when an 'A' was received
-	if (tx) {
-		while(rx_buffer.status != RB_EMPTY){
-			len = 0;
-			for(int i = 0; i < 64; i++){
-				if(RB_read(&rx_buffer, &buf[i]) == RB_EMPTY){
-					break;
-				}
-				len++;
-			}
-			while (usbd_ep_write_packet(usbd_dev, USB_CDC_ACM_DATA_TX_EP_ADDR, buf, len) == 0);
-		}
-	}
 }
 
+
+void sendTxBuffer(){
+	int len = 0;
+	char buf[64];
+	while(tx_buffer.status != RB_EMPTY){
+		len = 0;
+		for(int i = 0; i < 64; i++){
+			if(RB_read(&rx_buffer, &buf[i]) == RB_EMPTY){
+				break;
+			}
+			len++;
+		}
+		while (usbd_ep_write_packet(usbd_dev_main, USB_CDC_ACM_DATA_TX_EP_ADDR, buf, len) == 0);
+	}
+}
 
 //struct to handle controll messages
 static enum usbd_request_return_codes cdcacm_control_request(usbd_device *usbd_dev,
