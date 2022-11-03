@@ -19,6 +19,7 @@
 
 extern usbd_device *usbd_dev_main;
 
+void pollUSB();
 int setupUSB();
 
 #endif

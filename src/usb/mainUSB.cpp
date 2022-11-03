@@ -1,5 +1,4 @@
 #include "mainUSB.h"
-#include <libopencm3/cm3/nvic.h>
 
 /* Buffer to be used for control requests. */
 uint8_t usbd_control_buffer[1024];
@@ -51,6 +50,10 @@ void set_config(usbd_device *usbd_dev, uint16_t wValue){
 
 usbd_device *usbd_dev_main;
 
+void pollUSB(){
+    usbd_poll(usbd_dev_main);
+}
+
 int setupUSB() {
 
 
@@ -83,7 +86,5 @@ int setupUSB() {
 
     setup_cdc();
 
-    while (1) {
-        usbd_poll(usbd_dev_main);
-	}
+    return 0;
 }

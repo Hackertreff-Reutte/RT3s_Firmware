@@ -5,4 +5,8 @@
 
 int main(){
     setupUSB();
+
+    while(true){
+        pollUSB();
+    }
 }
