@@ -39,13 +39,13 @@ const struct usb_interface ifaces[] = {
 	.num_altsetting = 1,
 	.iface_assoc = NULL,
 	.altsetting = data_iface,
-}, 
+},
 {
 	.cur_altsetting = 0,
 	.num_altsetting = 1,
 	.iface_assoc = &audio_mic_iface_assoc,
 	.altsetting = audio_control_iface,
-}, 
+},
 {
 	.cur_altsetting = &streaming_iface_mic_cur_altsetting,
 	.num_altsetting = 2,

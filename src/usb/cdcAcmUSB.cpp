@@ -73,7 +73,7 @@ void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
 	//register the controll endpoint
 	usbd_ep_setup(usbd_dev, USB_CDC_ACM_CONTROL_EP_ADDR, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
 
-    //setup the controll callback function for usb controll packages 
+    //setup the controll callback function for usb controll packages
 	usbd_register_control_callback(
 				usbd_dev,
 				USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,

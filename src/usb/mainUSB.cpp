@@ -24,16 +24,16 @@ static enum usbd_request_return_codes audio_control_request(usbd_device *usbd_de
     (void)len;
 
 
-    //this is the set alt interface request 
+    //this is the set alt interface request
     //TODO ADD MORE CHECKS AND HANDLE THIS BETTER
     if(req->bRequest == USB_REQ_SET_INTERFACE){
-	    
+
         streaming_iface_mic_cur_altsetting = 1;
         //check for wIndex and wValue
         //gpio_set(GPIOE, GPIO0);
         return USBD_REQ_HANDLED;
     }
-    
+
     return USBD_REQ_NOTSUPP;
 }
 
@@ -49,7 +49,7 @@ static enum usbd_request_return_codes audio_control_request_endpoint(usbd_device
     (void)req;
 
     if(req->bmRequestType == 0x22){
-        return USBD_REQ_HANDLED;    
+        return USBD_REQ_HANDLED;
     }else{
         return USBD_REQ_NOTSUPP;
     }
@@ -74,8 +74,8 @@ void init_waveform_data()
  * toggling it so that we respond to every iso IN request from the host.
  * If this toggling is not performed, we only get half the bandwidth. */
 #define USB_REBASE(x) MMIO32((x) + (USB_OTG_FS_BASE))
-#define USB_DIEPCTLX_SD1PID     (1 << 29) // Odd frames 
-#define USB_DIEPCTLX_SD0PID     (1 << 28) // Even frames 
+#define USB_DIEPCTLX_SD1PID     (1 << 29) // Odd frames
+#define USB_DIEPCTLX_SD0PID     (1 << 28) // Even frames
 void toggle_isochronous_frame_mic(uint8_t ep)
 {
     static int toggle_mic = 0;
@@ -169,13 +169,13 @@ int setupUSB() {
     //LED
     gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
 
-    //enable fullspeed 
+    //enable fullspeed
     rcc_periph_clock_enable(RCC_OTGFS);
 
     //Needed for OTG_FS_ID, USB_D+ and USB_D-
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO10 | GPIO11 | GPIO12);
 
-    //selecting AF 10 for PA10 & PA11 & PA12  -> OTG_FS_ID, OTG_FS_DM, OTG_FS_DP 
+    //selecting AF 10 for PA10 & PA11 & PA12  -> OTG_FS_ID, OTG_FS_DM, OTG_FS_DP
     gpio_set_af(GPIOA, GPIO_AF10, GPIO10 | GPIO11 | GPIO12);
 
     //setup the USB

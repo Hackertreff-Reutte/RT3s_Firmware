@@ -24,7 +24,7 @@ static const struct usb_endpoint_descriptor data_endp[] = {{
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = USB_CDC_ACM_DATA_RX_EP_ADDR, //0b1 = Endpoint number 1 + OUT
 	.bmAttributes = USB_ENDPOINT_ATTR_BULK,
-	.wMaxPacketSize = 64, 
+	.wMaxPacketSize = 64,
 	.bInterval = 1,
     .extra = NULL,
     .extralen = 0

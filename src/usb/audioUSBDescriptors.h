@@ -29,10 +29,10 @@ static const struct usb_iface_assoc_descriptor audio_mic_iface_assoc = {  //  In
 #define EP_GENERAL 1
 #define GENERIC_MIC 0x0201
 #define USB_STREAMING 0x0101 //not bidirectional
-#define GENERIC_SPEAKER 0x301 //not bidirectional 
+#define GENERIC_SPEAKER 0x301 //not bidirectional
 
 #define GENERIC_BIDIRECTIONAL 0x0400
-#define HEADSET_HANDHELD 0x0401 
+#define HEADSET_HANDHELD 0x0401
 #define HEADSET_HEADMOUNTED 0x0402
 
 //Terminal IDs
@@ -90,7 +90,7 @@ static const struct {
         .bLength = sizeof(struct usb_audio_output_terminal_descriptor),
         .bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
         .bDescriptorSubtype = USB_AUDIO_TYPE_OUTPUT_TERMINAL,
-        .bTerminalID = TERMINAL_ID_MIC_OUTPUT, 
+        .bTerminalID = TERMINAL_ID_MIC_OUTPUT,
         .wTerminalType = USB_STREAMING,
         .bAssocTerminal = 0,
         .bSourceID = TERMINAL_ID_MIC_INPUT,
@@ -112,7 +112,7 @@ static const struct {
         .bLength = sizeof(struct usb_audio_output_terminal_descriptor),
         .bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
         .bDescriptorSubtype = USB_AUDIO_TYPE_OUTPUT_TERMINAL,
-        .bTerminalID = TERMINAL_ID_SPEAKER_OUTPUT, 
+        .bTerminalID = TERMINAL_ID_SPEAKER_OUTPUT,
         .wTerminalType = HEADSET_HEADMOUNTED,
         .bAssocTerminal = TERMINAL_ID_MIC_INPUT,
         .bSourceID = TERMINAL_ID_SPEAKER_INPUT,
@@ -146,7 +146,7 @@ static const struct usb_audio_stream_audio_endpoint_descriptor audio_streaming_c
     .bDescriptorType = USB_AUDIO_DT_CS_ENDPOINT,
     .bDescriptorSubtype = EP_GENERAL,
     .bmAttributes = 1, //was 0 (doesn't really matter)
-    .bLockDelayUnits = 0x0, // PCM samples 
+    .bLockDelayUnits = 0x0, // PCM samples
     .wLockDelay = 0x0000,
 } };
 
@@ -180,7 +180,7 @@ static const struct {
         .bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
         .bDescriptorSubtype = AS_GENERAL,
         .bTerminalLink = TERMINAL_ID_MIC_OUTPUT,
-        .bDelay = 0x1, //one frame delay 
+        .bDelay = 0x1, //one frame delay
         .wFormatTag = PCM_FORMAT,
     },
     .audio_type1_format_desc = {
@@ -192,7 +192,7 @@ static const struct {
             .bNrChannels = 1,
             .bSubFrameSize = 2,
             .bBitResolution = RESOLUTION_MIC, //16 bits per sample
-            .bSamFreqType = 1, //one frequency supporter 
+            .bSamFreqType = 1, //one frequency supporter
         },
         .freqs = { {
             .tSamFreq = SAMPLE_RATE_MIC,
@@ -258,7 +258,7 @@ static const struct {
         .bDescriptorType = USB_AUDIO_DT_CS_INTERFACE,
         .bDescriptorSubtype = AS_GENERAL,
         .bTerminalLink = TERMINAL_ID_SPEAKER_INPUT,
-        .bDelay = 0x1, //one frame delay 
+        .bDelay = 0x1, //one frame delay
         .wFormatTag = PCM_FORMAT,
     },
     .audio_type1_format_desc = {
@@ -270,7 +270,7 @@ static const struct {
             .bNrChannels = 1,
             .bSubFrameSize = 2,
             .bBitResolution = RESOLUTION_SPEAKER, //16 bits per sample
-            .bSamFreqType = 1, //one frequency supporter 
+            .bSamFreqType = 1, //one frequency supporter
         },
         .freqs = { {
             .tSamFreq = SAMPLE_RATE_SPEAKER,
