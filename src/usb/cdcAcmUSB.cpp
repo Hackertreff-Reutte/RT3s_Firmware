@@ -1,6 +1,9 @@
 #include "cdcAcmUSB.h"
 
 
+RING_BUFFER rx_buffer;
+RING_BUFFER tx_buffer;
+
 //bounche back UART messages
 void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 {
@@ -11,18 +14,32 @@ void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	//read the incoming packet
 	int len = usbd_ep_read_packet(usbd_dev, USB_CDC_ACM_DATA_RX_EP_ADDR, buf, 64);
 
-	//flip letter upper and lower case
+	//store data in rx_buffer and wait for an 'A'
+	int tx = 0;
 	for(int i = 0; i < len; i++){
-		if(buf[i] >= 'A' && buf[i] <= 'Z'){
-			buf[i] += 32;
-		}else if(buf[i] >= 'a' && buf[i] <= 'z'){
-			buf[i] -= 32;
+
+		if(buf[i] == 'A'){
+			tx = 1;
+		}
+
+
+		if(RB_write(&rx_buffer, &buf[i]) == RB_FULL){
+			break;
 		}
 	}
 
-	//write back
-	if (len) {
-		while (usbd_ep_write_packet(usbd_dev, USB_CDC_ACM_DATA_TX_EP_ADDR, buf, len) == 0);
+	//write back when an 'A' was received
+	if (tx) {
+		while(rx_buffer.status != RB_EMPTY){
+			len = 0;
+			for(int i = 0; i < 64; i++){
+				if(RB_read(&rx_buffer, &buf[i]) == RB_EMPTY){
+					break;
+				}
+				len++;
+			}
+			while (usbd_ep_write_packet(usbd_dev, USB_CDC_ACM_DATA_TX_EP_ADDR, buf, len) == 0);
+		}
 	}
 }
 
@@ -79,4 +96,10 @@ void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
 				USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
 				USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
 				cdcacm_control_request);
+}
+
+
+void setup_cdc(){
+	RB_setup(&rx_buffer, RX_BUFFER_SIZE, sizeof(uint8_t));
+	RB_setup(&tx_buffer, TX_BUFFER_SIZE, sizeof(uint8_t));
 }

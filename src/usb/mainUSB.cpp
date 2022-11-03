@@ -82,7 +82,7 @@ int setupUSB() {
     //setup confiog
     usbd_register_set_config_callback(usbd_dev_main, set_config);
 
-
+    setup_cdc();
 
     while (1) {
         usbd_poll(usbd_dev_main);
