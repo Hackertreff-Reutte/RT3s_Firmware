@@ -23,8 +23,8 @@ void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 		}
 
 
-		if(RB_write(&rx_buffer, &buf[i]) == RB_FULL){
-			break;
+		if(rx_buffer.status != RB_FULL){
+			RB_write(&rx_buffer, &buf[i]);
 		}
 	}
 
