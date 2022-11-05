@@ -55,7 +55,7 @@
 #define configIDLE_SHOULD_YIELD			1
 #define configUSE_MUTEXES				0
 #define configQUEUE_REGISTRY_SIZE		8
-#define configCHECK_FOR_STACK_OVERFLOW	0
+#define configCHECK_FOR_STACK_OVERFLOW	2
 #define configUSE_RECURSIVE_MUTEXES		0
 #define configUSE_MALLOC_FAILED_HOOK	0
 #define configUSE_APPLICATION_TASK_TAG	0
@@ -110,5 +110,6 @@ standard names. */
 #define vPortSVCHandler sv_call_handler
 #define xPortPendSVHandler pend_sv_handler
 #define xPortSysTickHandler sys_tick_handler
+
 
 #endif /* FREERTOS_CONFIG_H */

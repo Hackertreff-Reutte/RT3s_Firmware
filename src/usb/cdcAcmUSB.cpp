@@ -1,5 +1,6 @@
 #include "cdcAcmUSB.h"
-
+#include <string>
+#include "utils/serial.h"
 
 RING_BUFFER rx_buffer;
 RING_BUFFER tx_buffer;

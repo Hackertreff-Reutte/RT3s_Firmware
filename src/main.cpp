@@ -2,7 +2,8 @@
 #include <libopencm3/stm32/gpio.h>
 #include "FreeRTOS.h"
 #include "task.h"
-
+#include "usb/mainUSB.h"
+#include "utils/serial.h"
 
 /*
  * Handler in case our application overflows the stack
@@ -10,29 +11,30 @@
 void vApplicationStackOverflowHook(
 	TaskHandle_t xTask __attribute__((unused)),
     char *pcTaskName __attribute__((unused))) {
-
 	for (;;);
 }
 
 
 static void task1(void *args __attribute__((unused))) {
     for (;;) {
-		gpio_set(GPIOE, GPIO0);
-		vTaskDelay(pdMS_TO_TICKS(1000));
+		gpio_toggle(GPIOE, GPIO0);
+		vTaskDelay(pdMS_TO_TICKS(2000));
 	}
 }
 
 static void task2(void *args __attribute__((unused))) {
     for (;;) {
-		gpio_set(GPIOE, GPIO1);
+		gpio_toggle(GPIOE, GPIO1);
 		vTaskDelay(pdMS_TO_TICKS(1000));
 	}
 }
 
+
 int main(){
 
-    rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+    *(uint32_t*)0xE000ED08 = 0x0800C000;
 
+    rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
 
     //LED
@@ -46,7 +48,11 @@ int main(){
     /* Start the scheduler. */
 	vTaskStartScheduler();
 
-    for(;;) {}
+    setupUSB();
+
+    for(;;) {
+        pollUSB();
+    }
 
     return 0;
 }
