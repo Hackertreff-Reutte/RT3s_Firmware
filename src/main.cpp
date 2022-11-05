@@ -1,7 +1,5 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-#include "usb/mainUSB.h"
-
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -40,20 +38,14 @@ int main(){
     //LED
     rcc_periph_clock_enable(RCC_GPIOE);
     gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
-
+    gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1);
 
     xTaskCreate(task1, "LED1", 100, NULL, 2, NULL);
     xTaskCreate(task2, "LED2", 100, NULL, 2, NULL);
 
     /* Start the scheduler. */
 	vTaskStartScheduler();
-    /*
-    setupUSB();
 
-    while(true){
-        pollUSB();
-    }
-    */
     for(;;) {}
 
     return 0;
