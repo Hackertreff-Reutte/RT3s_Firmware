@@ -10,6 +10,8 @@
 #include <libopencm3/cm3/scb.h>
 #include <libopencm3/usb/dwc/otg_fs.h> // for OTG_FS_GCCFG
 
+#include "FreeRTOS.h"
+#include "task.h"
 
 #include "cdcAcmUSB.h"
 #include "audioUSB.h"
@@ -19,7 +21,7 @@
 
 extern usbd_device *usbd_dev_main;
 
-void pollUSB();
+void pollUSB_task(void *args __attribute__((unused)));
 int setupUSB();
 
 #endif
