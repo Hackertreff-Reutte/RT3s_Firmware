@@ -19,13 +19,6 @@ void vApplicationStackOverflowHook(
 }
 
 
-static void task1(void *args __attribute__((unused))) {
-    for (;;) {
-		gpio_toggle(GPIOE, GPIO0);
-		vTaskDelay(pdMS_TO_TICKS(2000));
-	}
-}
-
 static void task2(void *args __attribute__((unused))) {
     for (;;) {
 		gpio_toggle(GPIOE, GPIO1);
@@ -42,23 +35,23 @@ int main(){
 
     rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 
+    //setup the usb
+    setupUSB();
 
     //setup the status LEDs of the radio
     rcc_periph_clock_enable(RCC_GPIOE);
     gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
     gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1);
 
-    xTaskCreate(task1, "LED1", 100, NULL, 2, NULL);
+
     xTaskCreate(task2, "LED2", 100, NULL, 2, NULL);
 
     /* Start the scheduler. */
 	vTaskStartScheduler();
 
-    setupUSB();
 
-    for(;;) {
-        pollUSB();
-    }
+
+    for(;;) {}
 
     return 0;
 }

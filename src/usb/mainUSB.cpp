@@ -50,8 +50,12 @@ void set_config(usbd_device *usbd_dev, uint16_t wValue){
 
 usbd_device *usbd_dev_main;
 
-void pollUSB(){
-    usbd_poll(usbd_dev_main);
+
+void pollUSB_task(void *args __attribute__((unused))) {
+    for (;;) {
+		usbd_poll(usbd_dev_main);
+		vTaskDelay(pdMS_TO_TICKS(1));
+	}
 }
 
 int setupUSB() {
@@ -78,6 +82,9 @@ int setupUSB() {
 
     //setup confiog
     usbd_register_set_config_callback(usbd_dev_main, set_config);
+
+    //create the usb poll task
+    xTaskCreate(pollUSB_task, "pollUSB", 100, NULL, 2, NULL);
 
     return 0;
 }
