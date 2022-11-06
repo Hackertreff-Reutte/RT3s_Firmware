@@ -4,6 +4,7 @@
 
 RING_BUFFER rx_buffer;
 RING_BUFFER tx_buffer;
+uint8_t serial_connected = 0;
 
 //bounche back UART messages
 void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
@@ -16,21 +17,28 @@ void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	int len = usbd_ep_read_packet(usbd_dev, USB_CDC_ACM_DATA_RX_EP_ADDR, buf, 64);
 
 	//store data in rx_buffer
+	taskENTER_CRITICAL();
 	for(int i = 0; i < len; i++){
 		if(rx_buffer.status != RB_FULL){
 			RB_write(&rx_buffer, &buf[i]);
 		}
 	}
+	taskEXIT_CRITICAL();
 }
 
 
 void sendTxBuffer(){
+
+	if(serial_connected == false){
+		return;
+	}
+
 	int len = 0;
 	char buf[64];
 	while(tx_buffer.status != RB_EMPTY){
 		len = 0;
 		for(int i = 0; i < 64; i++){
-			if(RB_read(&rx_buffer, &buf[i]) == RB_EMPTY){
+			if(RB_read(&tx_buffer, &buf[i]) == RB_EMPTY){
 				break;
 			}
 			len++;
@@ -55,6 +63,10 @@ static enum usbd_request_return_codes cdcacm_control_request(usbd_device *usbd_d
 		 * even though it's optional in the CDC spec, and we don't
 		 * advertise it in the ACM functional descriptor.
 		 */
+
+		uint16_t rtsdtr = req->wValue;	// DTR is bit 0, RTS is bit 1
+		serial_connected = (rtsdtr & 1 || (rtsdtr >> 1) & 1) == 1;
+
 		return USBD_REQ_HANDLED;
 		}
 	case USB_CDC_REQ_SET_LINE_CODING:

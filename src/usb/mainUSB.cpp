@@ -54,6 +54,13 @@ usbd_device *usbd_dev_main;
 void pollUSB_task(void *args __attribute__((unused))) {
     for (;;) {
 		usbd_poll(usbd_dev_main);
+
+        if(tx_buffer.status != RB_EMPTY){
+            taskENTER_CRITICAL();
+            sendTxBuffer();
+            taskEXIT_CRITICAL();
+        }
+
 		vTaskDelay(pdMS_TO_TICKS(1));
 	}
 }
