@@ -1,5 +1,8 @@
 #include "serial.h"
 
+void print(std::string s){
+    print((char*) s.c_str());
+}
 
 void print(const char* s){
     print((char *) s);
@@ -12,6 +15,10 @@ void print(char* s){
         RB_write(&tx_buffer, &s[i]);
     }
     taskEXIT_CRITICAL();
+}
+
+void println(std::string s){
+    println((char*) s.c_str());
 }
 
 void println(const char* s){

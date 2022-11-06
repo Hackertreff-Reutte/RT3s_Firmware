@@ -22,7 +22,7 @@ void vApplicationStackOverflowHook(
 static void task2(void *args __attribute__((unused))) {
     for (;;) {
 		gpio_toggle(GPIOE, GPIO1);
-        println("test");
+        print(readAll());
 		vTaskDelay(pdMS_TO_TICKS(2000));
 	}
 }
